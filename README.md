@@ -1,4 +1,4 @@
-# obstacle collision avoidance in unity
+# Obstacle collision avoidance in unity
 
 
 Implementing obstacle collision avoidance Using DOTS

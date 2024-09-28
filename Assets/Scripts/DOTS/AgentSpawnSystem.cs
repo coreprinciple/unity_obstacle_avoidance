@@ -64,9 +64,9 @@ namespace avoidance.dots
             state.EntityManager.AddComponent<AgentTestDataComponent>(testDataEntity);
             SystemAPI.SetComponent(testDataEntity, new AgentTestDataComponent { targetPosition = new float3(0.0f, 0.0f, 9.0f) });
 
-            SpawnAgent(ref state, new float3(0f, 0.5f, -5f));
-            SpawnAgent(ref state, new float3(3f, 0.5f, -5f));
-            SpawnAgent(ref state, new float3(-3f, 0.5f, -5f));
+            SpawnAgent(ref state, new float3(0f, 0.5f, -13f));
+            SpawnAgent(ref state, new float3(3f, 0.5f, -13f));
+            SpawnAgent(ref state, new float3(-3f, 0.5f, -13f));
         }
 
         [BurstCompile]

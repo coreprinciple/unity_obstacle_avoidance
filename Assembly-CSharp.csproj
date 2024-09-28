@@ -81,6 +81,7 @@
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
     <Compile Include="Assets\Scripts\DOTS\AgentTestDataComponent.cs" />
     <Compile Include="Assets\Scripts\DOTS\Agent.cs" />
+    <Compile Include="Assets\Scripts\DOTS\AgentJob.cs" />
     <Compile Include="Assets\Scripts\DOTS\AgentSpawnSystem.cs" />
     <Compile Include="Assets\Scripts\DOTS\AvoidObstacleUtil.cs" />
     <Compile Include="Assets\Scripts\DOTS\AgentSpawnAuthoring.cs" />

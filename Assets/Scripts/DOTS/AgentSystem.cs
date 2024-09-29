@@ -1,9 +1,7 @@
 using Unity.Burst;
 using Unity.Physics;
 using Unity.Entities;
-using Unity.Transforms;
 using Unity.Collections;
-using Unity.Mathematics;
 
 namespace avoidance.dots
 {
@@ -22,8 +20,8 @@ namespace avoidance.dots
         public void OnUpdate(ref SystemState state)
         {
             var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
-            var targetPosition = SystemAPI.GetSingleton<AgentTestDataComponent>().targetPosition;
-
+            var testData = SystemAPI.GetSingleton<AgentTestDataComponent>();
+            
             var obstacleQuery = SystemAPI.QueryBuilder().WithAll<Obstacle>().Build();
             var obstacles = obstacleQuery.ToComponentDataArray<Obstacle>(Allocator.Temp);
             float deltaTime = SystemAPI.Time.DeltaTime;
@@ -35,9 +33,10 @@ namespace avoidance.dots
             {
                 physicsWorld = physicsWorld,
                 obstacles = _obstacles,
-                targetPosition = targetPosition,
+                targetPosition = testData.targetPosition,
                 deltaTime = deltaTime,
-            }.Schedule();
+                isDirty = testData.isDirty,
+            }.ScheduleParallel();
 
             obstacles.Dispose();
         }

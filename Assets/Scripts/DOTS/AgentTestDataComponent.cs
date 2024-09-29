@@ -4,4 +4,5 @@ using Unity.Mathematics;
 public struct AgentTestDataComponent : IComponentData
 {
     public float3 targetPosition;
+    public bool isDirty;
 }

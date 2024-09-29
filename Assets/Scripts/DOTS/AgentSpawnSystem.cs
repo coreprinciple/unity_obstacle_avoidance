@@ -40,6 +40,7 @@ namespace avoidance.dots
                     mass = 1,
                     radius = 1,
                     rotLerpSpeed = 20,
+                    arrival = true,
                 };
                 Obstacle obstacle = new Obstacle()
                 {
@@ -62,7 +63,7 @@ namespace avoidance.dots
 
             Entity testDataEntity = state.EntityManager.CreateEntity();
             state.EntityManager.AddComponent<AgentTestDataComponent>(testDataEntity);
-            SystemAPI.SetComponent(testDataEntity, new AgentTestDataComponent { targetPosition = new float3(0.0f, 0.0f, 9.0f) });
+            SystemAPI.SetComponent(testDataEntity, new AgentTestDataComponent { targetPosition = float3.zero, isDirty = false });
 
             SpawnAgent(ref state, new float3(0f, 0.5f, -13f));
             SpawnAgent(ref state, new float3(3f, 0.5f, -13f));

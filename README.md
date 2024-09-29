@@ -3,4 +3,6 @@
 
 Implementing obstacle collision avoidance Using DOTS
 
+https://youtu.be/gpu9jmShrnc?si=mu4CclQ6tyLdTCRs
+
 ![collision_avoidance](https://github.com/user-attachments/assets/c2cfe30d-ff14-45be-bded-cd9d408925e2)

@@ -12,6 +12,7 @@ namespace avoidance.dots
         [ReadOnly] public NativeList<Obstacle> obstacles;
         [ReadOnly] public float3 targetPosition;
         [ReadOnly] public float deltaTime;
+        [ReadOnly] public bool isDirty;
 
         private bool LineIntersectsCircle(float3 ahead, float3 ahead2, float3 point, float radius)
         {
@@ -151,8 +152,24 @@ namespace avoidance.dots
             transform.Rotation = quaternion.LookRotation(forward, new float3(0, 1, 0));
         }
 
+        private bool IsArrival(ref Agent agent)
+        {
+            if (agent.arrival == false)
+                return false;
+
+            if (isDirty && agent.arrival)
+            {
+                agent.arrival = false;
+                isDirty = false;
+            }
+            return agent.arrival;
+        }
+
         public void Execute(ref Agent agent, ref Obstacle obstacle, ref LocalTransform transform)
         {
+            if (IsArrival(ref agent))
+                return;
+
             UpdateMove(obstacles, ref agent, ref obstacle, ref transform, targetPosition, deltaTime);
             UpdateRoatation(agent, ref transform, deltaTime);
         }

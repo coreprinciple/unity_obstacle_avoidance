@@ -75,9 +75,12 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\AvoidanceCommon.cs" />
     <Compile Include="Assets\Scripts\Mono\Agent.cs" />
+    <Compile Include="Assets\Scripts\DOTS\Input\MousePickCollector.cs" />
     <Compile Include="Assets\Scripts\DOTS\ObstacleAuthoring.cs" />
     <Compile Include="Assets\Scripts\DOTS\AgentSystem.cs" />
     <Compile Include="Assets\Scripts\Mono\AgentUtil.cs" />
+    <Compile Include="Assets\Scripts\DOTS\Input\MousePickAuthoring.cs" />
+    <Compile Include="Assets\Scripts\DOTS\BitmaskData.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
     <Compile Include="Assets\Scripts\DOTS\AgentTestDataComponent.cs" />
     <Compile Include="Assets\Scripts\DOTS\Agent.cs" />

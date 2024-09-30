@@ -3,7 +3,6 @@ using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Collections;
-using System.Threading;
 
 namespace avoidance.dots
 {

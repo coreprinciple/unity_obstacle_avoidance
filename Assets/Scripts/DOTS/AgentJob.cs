@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Collections;
+using System.Threading;
 
 namespace avoidance.dots
 {
@@ -17,6 +18,26 @@ namespace avoidance.dots
         private bool LineIntersectsCircle(float3 ahead, float3 ahead2, float3 point, float radius)
         {
             return math.distance(point, ahead) <= radius || math.distance(point, ahead2) <= radius;
+        }
+
+        private int GetOverlapAgent(NativeList<Obstacle> obstacles, Agent agent, float3 position)
+        {
+            int overlapAgent = -1;
+            float distance = float.PositiveInfinity;
+
+            for (int i = 0; i < obstacles.Length; i++)
+            {
+                if (!obstacles[i].isAgent || obstacles[i].id == agent.id)
+                    continue;
+
+                float d = math.distance(obstacles[i].position, position);
+                if (d < agent.radius && d < distance)
+                {
+                    overlapAgent = obstacles[i].id;
+                    distance = d;
+                }
+            }
+            return overlapAgent;
         }
 
         private int FindMostThreateningObstacle(int agentID, NativeList<Obstacle> obstacles, float3 position, float3 ahead, float3 ahead2, float radius)
@@ -106,7 +127,7 @@ namespace avoidance.dots
             return deltaPos;
         }
 
-        private void UpdateMove(NativeList<Obstacle> obstacles, ref Agent agent, ref Obstacle obstacle, ref LocalTransform transform, float3 targetPosition, float deltaTime)
+        private void UpdateMove(NativeList<Obstacle> obstacles, ref Agent agent, ref Obstacle agentObstacle, ref LocalTransform transform, float3 targetPosition, float deltaTime)
         {
             float3 position = transform.Position;
             float3 targetPos = targetPosition;
@@ -137,13 +158,13 @@ namespace avoidance.dots
 
             float predicMoveDistance = math.distance(transform.Position, position);
             float predicRemainDistance = math.distance(position, targetPos);
-
-            if (predicRemainDistance > agent.radius && predicMoveDistance < currentRemain)
+            
+            if (predicRemainDistance > (agent.radius + 0.1f) && predicMoveDistance < currentRemain)
                 transform.Position = position;
             else
                 agent.arrival = true;
-
-            obstacle.position = transform.Position;
+        
+            agentObstacle.position = transform.Position;
         }
 
         private void UpdateRoatation(Agent agent, ref LocalTransform transform, float deltaTime)
@@ -165,12 +186,12 @@ namespace avoidance.dots
             return agent.arrival;
         }
 
-        public void Execute(ref Agent agent, ref Obstacle obstacle, ref LocalTransform transform)
+        public void Execute(ref Agent agent, ref Obstacle agentObstacle, ref LocalTransform transform)
         {
             if (IsArrival(ref agent))
                 return;
 
-            UpdateMove(obstacles, ref agent, ref obstacle, ref transform, targetPosition, deltaTime);
+            UpdateMove(obstacles, ref agent, ref agentObstacle, ref transform, targetPosition, deltaTime);
             UpdateRoatation(agent, ref transform, deltaTime);
         }
     }

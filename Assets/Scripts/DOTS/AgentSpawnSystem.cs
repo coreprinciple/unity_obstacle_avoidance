@@ -8,13 +8,20 @@ namespace avoidance.dots
 {
     partial struct AgentSpawnSystem : ISystem
     {
+        private int _obstacleID;
+
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<AgentSpawn>();
 
+            _obstacleID = 0;
+
             foreach (var obstacle in SystemAPI.Query<RefRW<Obstacle>>())
-                obstacle.ValueRW.id = AvoidObstacleUtil.Instance().GetNewObstacleID();
+            {
+                obstacle.ValueRW.id = ++_obstacleID;
+                obstacle.ValueRW.isAgent = false;
+            }
         }
 
         private void SpawnAgent(ref SystemState state, float3 spawnPosition)
@@ -25,7 +32,7 @@ namespace avoidance.dots
 
             for (int i = 0; i < agentEntities.Length; i++)
             {
-                int id = AvoidObstacleUtil.Instance().GetNewObstacleID();
+                int id = ++_obstacleID;
                 state.EntityManager.AddComponent<Agent>(agentEntities[i]);
                 state.EntityManager.AddComponent<Obstacle>(agentEntities[i]);
 
@@ -46,6 +53,7 @@ namespace avoidance.dots
                 {
                     id = id,
                     position = spawnPosition,
+                    isAgent = true,
                 };
                 SystemAPI.SetComponent(agentEntities[i], agent);
                 SystemAPI.SetComponent(agentEntities[i], obstacle);
@@ -66,8 +74,12 @@ namespace avoidance.dots
             SystemAPI.SetComponent(testDataEntity, new AgentTestDataComponent { targetPosition = float3.zero, isDirty = false });
 
             SpawnAgent(ref state, new float3(0f, 0.5f, -13f));
-            SpawnAgent(ref state, new float3(3f, 0.5f, -13f));
-            SpawnAgent(ref state, new float3(-3f, 0.5f, -13f));
+
+            for (int i = 1; i < 11; i++)
+            {
+                SpawnAgent(ref state, new float3(1.0f * i, 0.5f, -13f));
+                SpawnAgent(ref state, new float3(-1.0f * i, 0.5f, -13f));
+            }
         }
 
         [BurstCompile]

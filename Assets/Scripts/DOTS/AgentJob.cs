@@ -1,3 +1,4 @@
+using Unity.Burst;
 using Unity.Physics;
 using Unity.Entities;
 using Unity.Transforms;
@@ -6,6 +7,7 @@ using Unity.Collections;
 
 namespace avoidance.dots
 {
+    [BurstCompile]
     public partial struct AgentJob : IJobEntity
     {
         [ReadOnly] public PhysicsWorld physicsWorld;
@@ -126,72 +128,77 @@ namespace avoidance.dots
             return deltaPos;
         }
 
-        private void UpdateMove(NativeList<Obstacle> obstacles, ref Agent agent, ref Obstacle agentObstacle, ref LocalTransform transform, float3 targetPosition, float deltaTime)
+        private void UpdateMove(NativeList<Obstacle> obstacles, ref AgentAspect agentAsepct, float3 targetPosition, float deltaTime)
         {
-            float3 position = transform.Position;
+            RefRW<Agent> agent = agentAsepct.agent;
+            RefRW<Obstacle> agentObstacle = agentAsepct.obstacle;
+            RefRW<LocalTransform> transform = agentAsepct.localTransform;
+
+            float3 position = transform.ValueRO.Position;
             float3 targetPos = targetPosition;
             float y = position.y;
             targetPos.y = y;
 
             float currentRemain = math.distance(position, targetPos);
             float3 steering = float3.zero;
-            steering += Seek(agent, position, targetPos, deltaTime);
-            steering += CollisionAvoidance(obstacles, agent, position, agent.velocity);
+            steering += Seek(agent.ValueRO, position, targetPos, deltaTime);
+            steering += CollisionAvoidance(obstacles, agent.ValueRO, position, agent.ValueRO.velocity);
 
-            steering = math.normalize(steering) * agent.maxForce;
-            steering = steering / agent.mass;
+            steering = math.normalize(steering) * agent.ValueRO.maxForce;
+            steering = steering / agent.ValueRO.mass;
             steering.y = 0.0f;
 
-            agent.velocity = math.normalize(agent.velocity + steering) * agent.maxSpeed * deltaTime;
-            agent.velocity.y = 0;
+            agent.ValueRW.velocity = math.normalize(agent.ValueRO.velocity + steering) * agent.ValueRO.maxSpeed * deltaTime;
+            agent.ValueRW.velocity.y = 0;
 
-            position = position + agent.velocity;
+            position = position + agent.ValueRO.velocity;
             position.y = y;
 
-            float3 movDir = math.normalize(agent.velocity);
+            float3 movDir = math.normalize(agent.ValueRO.velocity);
             movDir.y = 0;
             quaternion moveDirRot = quaternion.Euler(movDir);
 
-            position += CollisionRaycast(agent, position, moveDirRot, movDir) * deltaTime;
-            agent.lookDirection = math.normalize(position - transform.Position);
+            position += CollisionRaycast(agent.ValueRO, position, moveDirRot, movDir) * deltaTime;
+            agent.ValueRW.lookDirection = math.normalize(position - transform.ValueRO.Position);
 
-            float predicMoveDistance = math.distance(transform.Position, position);
+            float predicMoveDistance = math.distance(transform.ValueRO.Position, position);
             float predicRemainDistance = math.distance(position, targetPos);
             
-            if (predicRemainDistance > (agent.radius + 0.1f) && predicMoveDistance < currentRemain)
-                transform.Position = position;
+            if (predicRemainDistance > (agent.ValueRO.radius + 0.1f) && predicMoveDistance < currentRemain)
+                transform.ValueRW.Position = position;
             else
-                agent.arrival = true;
+                agent.ValueRW.arrival = true;
         
-            agentObstacle.position = transform.Position;
+            agentObstacle.ValueRW.position = transform.ValueRO.Position;
         }
 
-        private void UpdateRoatation(Agent agent, ref LocalTransform transform, float deltaTime)
+        private void UpdateRoatation(ref AgentAspect agentAsepct, float deltaTime)
         {
-            float3 forward = math.lerp(transform.Forward(), agent.lookDirection, deltaTime * agent.rotLerpSpeed);
-            transform.Rotation = quaternion.LookRotation(forward, new float3(0, 1, 0));
+            Agent agent = agentAsepct.agent.ValueRO;
+            float3 forward = math.lerp(agentAsepct.localTransform.ValueRO.Forward(), agent.lookDirection, deltaTime * agent.rotLerpSpeed);
+            agentAsepct.localTransform.ValueRW.Rotation = quaternion.LookRotation(forward, new float3(0, 1, 0));
         }
 
-        private bool IsArrival(ref Agent agent)
+        private bool IsArrival(RefRW<Agent> agent)
         {
-            if (agent.arrival == false)
+            if (agent.ValueRO.arrival == false)
                 return false;
 
-            if (isDirty && agent.arrival)
+            if (isDirty && agent.ValueRO.arrival)
             {
-                agent.arrival = false;
+                agent.ValueRW.arrival = false;
                 isDirty = false;
             }
-            return agent.arrival;
+            return agent.ValueRO.arrival;
         }
 
-        public void Execute(ref Agent agent, ref Obstacle agentObstacle, ref LocalTransform transform)
+        public void Execute(AgentAspect agentAsepct)
         {
-            if (IsArrival(ref agent))
+            if (IsArrival(agentAsepct.agent))
                 return;
 
-            UpdateMove(obstacles, ref agent, ref agentObstacle, ref transform, targetPosition, deltaTime);
-            UpdateRoatation(agent, ref transform, deltaTime);
+            UpdateMove(obstacles, ref agentAsepct, targetPosition, deltaTime);
+            UpdateRoatation(ref agentAsepct, deltaTime);
         }
     }
 }

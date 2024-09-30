@@ -82,6 +82,7 @@
     <Compile Include="Assets\Scripts\DOTS\Input\MousePickAuthoring.cs" />
     <Compile Include="Assets\Scripts\DOTS\BitmaskData.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
+    <Compile Include="Assets\Scripts\DOTS\AgentAspect.cs" />
     <Compile Include="Assets\Scripts\DOTS\AgentTestDataComponent.cs" />
     <Compile Include="Assets\Scripts\DOTS\Agent.cs" />
     <Compile Include="Assets\Scripts\DOTS\AgentJob.cs" />

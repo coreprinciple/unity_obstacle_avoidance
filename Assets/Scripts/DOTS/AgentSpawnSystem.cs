@@ -45,7 +45,7 @@ namespace avoidance.dots
                     maxSpeed = 5,
                     maxForce = 3,
                     mass = 1,
-                    radius = 1,
+                    radius = 0.5f,
                     rotLerpSpeed = 20,
                     arrival = true,
                 };

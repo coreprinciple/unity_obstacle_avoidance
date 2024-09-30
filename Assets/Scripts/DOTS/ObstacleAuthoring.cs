@@ -25,6 +25,7 @@ namespace avoidance.dots
     {
         public int id;
         public float3 position;
+        public bool isAgent;
     }
 }
 

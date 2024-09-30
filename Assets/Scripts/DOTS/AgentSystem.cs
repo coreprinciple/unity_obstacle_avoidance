@@ -5,6 +5,7 @@ using Unity.Collections;
 
 namespace avoidance.dots
 {
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
     partial struct AgentSystem : ISystem
     {
         private NativeList<Obstacle> _obstacles;
@@ -37,7 +38,7 @@ namespace avoidance.dots
                 deltaTime = deltaTime,
                 isDirty = testData.isDirty,
             }.ScheduleParallel();
-
+            
             obstacles.Dispose();
         }
 
